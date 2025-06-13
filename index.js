@@ -1,24 +1,20 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const { create } = require('@open-wa/wa-automate');
 
-const client = new Client({
-  authStrategy: new LocalAuth(),
-  puppeteer: {
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  }
-});
+create({
+  sessionId: "cryptcambio-bot",
+  multiDevice: true,
+  headless: true,
+  qrTimeout: 0,
+  authTimeout: 60,
+  cacheEnabled: false,
+  useChrome: true,
+}).then(client => start(client)).catch(err => console.error(err));
 
-client.on('qr', (qr) => {
-  qrcode.generate(qr, { small: true });
-});
-
-client.on('ready', () => {
-  console.log('✅ Bot conectado correctamente');
-});
-
-client.on('message', message => {
-  console.log(`📩 Mensaje recibido: ${message.body}`);
-});
-
-client.initialize();
+function start(client) {
+  console.log("🤖 Bot iniciado correctamente.");
+  client.onMessage(async message => {
+    if (message.body === '!ping') {
+      await client.sendText(message.from, 'pong 🏓');
+    }
+  });
+}
